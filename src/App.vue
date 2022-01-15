@@ -9,6 +9,8 @@
               placeholder="What needs to be done?"
               value=""
               v-model="newTodoText"
+              @keyup.enter="addNewTask"
+              autofocus
             />
         </header>
         <section class="main">
@@ -33,26 +35,40 @@
 
 <script>
 
-export default {
-  name: 'App',
-  components: {
-    
-  },
-  data: function() {
-    return {
-      tasks: [{
-        id: '1',
-        text: 'test task',
-        completed: false
+  export default {
+    name: 'App',
+    components: {
+      
+    },
+    data: function() {
+      return {
+        tasks: [{
+          id: '1',
+          text: 'test task',
+          completed: false
+        },
+        {
+          id: '2',
+          text: 'test task 2',
+          completed: true
+        }] 
+      }
+    },
+    methods: {
+      addNewTask: function() {
+        this.tasks.push({
+          id: this.getId(),
+          text: this.newTodoText,
+          completed: false
+        })
+        this.newTodoText = ""
       },
-      {
-        id: '2',
-        text: 'test task 2',
-        completed: true
-      }] 
+      getId: function() {
+        let idValue = 0.5 + Math.random() * 1e17;
+        return(idValue)
+      }
     }
   }
-}
 </script>
 
 <style>
