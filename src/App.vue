@@ -7,7 +7,6 @@
             <input
               class="new-todo"
               placeholder="What needs to be done?"
-              value=""
               v-model="newTodoText"
               @keyup.enter="addNewTask"
               autofocus
@@ -17,15 +16,13 @@
           <input class="toggle-all" type="checkbox" />
           <label for="toggle-all"></label>
           <ul class="todo-list">
-            <template v-for="task in tasks" >
-              <li :id="task.id" :class="{completed: task.completed}" :key="task.id">
-                <div class="view">
-                  <input class="toggle" type="checkbox">
-                  <label>{{ task.text }}</label>
-                  <button class="destroy"></button>
-                </div>
-              </li>
-            </template>
+            <li v-for="task in tasks" :id="task.id" :class="{completed: task.completed}" :key="task.id">
+              <div class="view">
+                <input class="toggle" type="checkbox">
+                <label>{{ task.text }}</label>
+                <button class="destroy"></button>
+              </div>
+            </li>
           </ul>
         </section>
       </div>
@@ -55,18 +52,14 @@
       }
     },
     methods: {
-      addNewTask: function() {
+      addNewTask() {
         this.tasks.push({
-          id: this.getId(),
+          id: Date.now(), 
           text: this.newTodoText,
           completed: false
         })
         this.newTodoText = ""
       },
-      getId: function() {
-        let idValue = 0.5 + Math.random() * 1e17;
-        return(idValue)
-      }
     }
   }
 </script>
