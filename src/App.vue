@@ -16,9 +16,9 @@
           <input class="toggle-all" type="checkbox" />
           <label for="toggle-all"></label>
           <ul class="todo-list">
-            <li v-for="(task, index) in tasks" :id="task.id" :class="{completed: task.completed}" :key="index">
+            <li v-for="(task, index) in tasks" :class="{completed: task.completed}" :key="task.id">
               <div class="view">
-                <input class="toggle" type="checkbox">
+                <input @click="toggleTask()" class="toggle" type="checkbox">
                 <label>{{ task.text }}</label>
                 <button @click="deleteTask(index)" class="destroy"></button>
               </div>
@@ -62,6 +62,9 @@
       },
       deleteTask(id) {
         this.tasks.splice(id, 1)
+      },
+      toggleTask() {
+        this.task.completed = !this.task.completed
       }
     }
   }
