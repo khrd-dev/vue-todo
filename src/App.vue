@@ -16,12 +16,20 @@
           <input class="toggle-all" type="checkbox" />
           <label for="toggle-all"></label>
           <ul class="todo-list">
-            <li v-for="(task, index) in tasks" :class="{completed: task.completed}" :key="task.id">
-              <div class="view">
-                <input @click="toggleTask()" class="toggle" type="checkbox">
-                <label>{{ task.text }}</label>
-                <button @click="deleteTask(index)" class="destroy"></button>
-              </div>
+            <li v-for="task in tasks" 
+              :class="{completed: task.completed, editing: inputId == task.id }" 
+              :key="task.id">
+                <div class="view">
+                  <input @click="toggleTask()" class="toggle" type="checkbox">
+                  <label @dblclick="editTask(task)">{{ task.text }}</label>
+                  <button @click="deleteTask(task)" class="destroy"></button>
+                </div>
+                <input v-focus class="edit"
+                  v-if="inputId == task.id"
+                  @blur="doneEdit(task)" 
+                  @keyup.enter="doneEdit(task)"
+                  @keyup.esc="cancelEdit(task)"
+                  v-model="task.text">
             </li>
           </ul>
         </section>
@@ -37,8 +45,18 @@
     components: {
       
     },
+    directives: {
+      focus: {
+        inserted: function (el) {
+          el.focus()
+        }
+      }
+    },
     data: function() {
       return {
+        newTodoText: null,
+        inputId: null,
+        beforeEdit: null,
         tasks: [{
           id: '1',
           text: 'test task',
@@ -51,6 +69,7 @@
         }] 
       }
     },
+
     methods: {
       addNewTask() {
         this.tasks.push({
@@ -58,13 +77,26 @@
           text: this.newTodoText,
           completed: false
         })
-        this.newTodoText = ""
+        this.newTodoText = ''
       },
-      deleteTask(id) {
-        this.tasks.splice(id, 1)
+      deleteTask(Task) {
+        this.tasks = this.tasks.filter((task) => task.id != Task.id)
       },
       toggleTask() {
         this.task.completed = !this.task.completed
+      },
+      editTask(task) {
+        this.beforeEdit = task.text,
+        this.inputId = task.id,
+        this.editingTask = true
+      },
+      doneEdit(task) {
+        this.inputId = null
+        if (!task.text) this.deleteTask(task)
+      },
+      cancelEdit(task) {
+        this.inputId = null,
+        task.text = this.beforeEdit
       }
     }
   }
