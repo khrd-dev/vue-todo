@@ -33,6 +33,21 @@
             </li>
           </ul>
         </section>
+        <footer class="footer">
+				<span class="todo-count">{{countValue}}</span>
+				<ul class="filters">
+					<li>
+						<a href="#/" class="selected">All</a>
+					</li>
+					<li>
+						<a href="#/active">Active</a>
+					</li>
+					<li>
+						<a href="#/completed">Completed</a>
+					</li>
+				</ul>
+				<button class="clear-completed">Clear completed</button>
+			</footer>
       </div>
     </section>
   </div>
@@ -67,6 +82,12 @@
           text: 'test task 2',
           completed: true
         }] 
+      }
+    },
+
+    computed: {
+      countValue() {
+        return this.tasks.length + " items left"
       }
     },
 
