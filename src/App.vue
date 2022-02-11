@@ -20,7 +20,7 @@
               :class="{completed: task.completed, editing: inputId == task.id }" 
               :key="task.id">
                 <div class="view">
-                  <input @click="toggleTask()" class="toggle" type="checkbox">
+                  <input v-model="task.completed" class="toggle" type="checkbox">
                   <label @dblclick="editTask(task)">{{ task.text }}</label>
                   <button @click="deleteTask(task)" class="destroy"></button>
                 </div>
@@ -34,7 +34,7 @@
           </ul>
         </section>
         <footer class="footer">
-				<span class="todo-count">{{countValue}}</span>
+				<span v-if="countValue != '0 items left'" class="todo-count">{{countValue}}</span>
 				<ul class="filters">
 					<li>
 						<a href="#/" class="selected">All</a>
@@ -46,7 +46,7 @@
 						<a href="#/completed">Completed</a>
 					</li>
 				</ul>
-				<button class="clear-completed">Clear completed</button>
+				<button v-if="showClearCompleted" @click="clearCompleted()" class="clear-completed">Clear completed</button>
 			</footer>
       </div>
     </section>
@@ -72,39 +72,32 @@
         newTodoText: null,
         inputId: null,
         beforeEdit: null,
-        tasks: [{
-          id: '1',
-          text: 'test task',
-          completed: false
-        },
-        {
-          id: '2',
-          text: 'test task 2',
-          completed: true
-        }] 
+        tasks: [] 
       }
     },
 
     computed: {
       countValue() {
         return this.tasks.length + " items left"
+      },
+      showClearCompleted() {
+        return this.tasks.filter(task => task.completed).length > 0
       }
     },
 
     methods: {
       addNewTask() {
-        this.tasks.push({
-          id: Date.now(), 
-          text: this.newTodoText,
-          completed: false
-        })
-        this.newTodoText = ''
+        if (this.newTodoText) {
+          this.tasks.push({
+            id: Date.now(), 
+            text: this.newTodoText,
+            completed: false
+          }),
+          this.newTodoText = ''
+        }
       },
       deleteTask(Task) {
         this.tasks = this.tasks.filter((task) => task.id != Task.id)
-      },
-      toggleTask() {
-        this.task.completed = !this.task.completed
       },
       editTask(task) {
         this.beforeEdit = task.text,
@@ -118,6 +111,9 @@
       cancelEdit(task) {
         this.inputId = null,
         task.text = this.beforeEdit
+      },
+      clearCompleted() {
+        this.tasks = this.tasks.filter((task) => !task.completed)
       }
     }
   }
