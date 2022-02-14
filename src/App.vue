@@ -33,17 +33,17 @@
             </li>
           </ul>
         </section>
-        <footer class="footer">
+        <footer v-if="this.allTasks.length > 0" class="footer">
 				<span v-if="countValue != '0 items left'" class="todo-count">{{countValue}}</span>
 				<ul class="filters">
 					<li>
-						<a href="#/" class="selected">All</a>
+						<router-link :class="{selected: this.pageURL == '/'}" to="/">All</router-link>
 					</li>
 					<li>
-						<a href="#/active">Active</a>
+						<router-link :class="{selected: this.pageURL == '/active'}" to="/active">Active</router-link>
 					</li>
 					<li>
-						<a href="#/completed">Completed</a>
+						<router-link :class="{selected: this.pageURL == '/completed'}" to="/completed">Completed</router-link>
 					</li>
 				</ul>
 				<button v-if="showClearCompleted" @click="clearCompleted()" class="clear-completed">Clear completed</button>
@@ -69,10 +69,12 @@
     },
     data: function() {
       return {
+        thisPage: null,
         newTodoText: null,
         inputId: null,
         beforeEdit: null,
-        tasks: [] 
+        tasks: [],
+        allTasks: [],
       }
     },
 
@@ -82,6 +84,18 @@
       },
       showClearCompleted() {
         return this.tasks.filter(task => task.completed).length > 0
+      },
+      pageURL() {
+        return this.$route.path
+      },
+      filteredTasks() {
+        if (this.pageURL == "/active") {
+          return this.showActiveTasks()
+        }
+        if (this.pageURL == "/completed") {
+          return this.showCompletedTasks()
+        }
+        return this.showAllTasks() 
       }
     },
 
@@ -93,27 +107,42 @@
             text: this.newTodoText,
             completed: false
           }),
-          this.newTodoText = ''
+          this.newTodoText = '',
+          this.allTasks = this.tasks
         }
       },
       deleteTask(Task) {
-        this.tasks = this.tasks.filter((task) => task.id != Task.id)
+        this.tasks = this.tasks.filter((task) => task.id != Task.id),
+        this.allTasks = this.tasks
       },
       editTask(task) {
         this.beforeEdit = task.text,
         this.inputId = task.id,
-        this.editingTask = true
+        this.editingTask = true,
+        this.allTasks = this.tasks
       },
       doneEdit(task) {
         this.inputId = null
-        if (!task.text) this.deleteTask(task)
+        if (!task.text) this.deleteTask(task),
+        this.allTasks = this.tasks
       },
       cancelEdit(task) {
         this.inputId = null,
-        task.text = this.beforeEdit
+        task.text = this.beforeEdit,
+        this.allTasks = this.tasks
       },
       clearCompleted() {
-        this.tasks = this.tasks.filter((task) => !task.completed)
+        this.tasks = this.tasks.filter((task) => task.completed == false),
+        this.allTasks = this.allTasks.filter((task) => task.completed == false)
+      },
+      showActiveTasks() {
+        this.tasks = this.allTasks.filter((task) => task.completed == false)
+      },
+      showCompletedTasks() {
+        this.tasks = this.allTasks.filter((task) => task.completed == true)
+      },
+      showAllTasks() {
+        this.tasks = this.allTasks
       }
     }
   }
