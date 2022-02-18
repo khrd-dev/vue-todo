@@ -33,32 +33,24 @@
             </li>
           </ul>
         </section>
-        <footer v-if="this.allTasks.length > 0" class="footer">
-				<span v-if="countValue != '0 items left'" class="todo-count">{{countValue}}</span>
-				<ul class="filters">
-					<li>
-						<router-link :class="{selected: this.pageURL == '/'}" to="/">All</router-link>
-					</li>
-					<li>
-						<router-link :class="{selected: this.pageURL == '/active'}" to="/active">Active</router-link>
-					</li>
-					<li>
-						<router-link :class="{selected: this.pageURL == '/completed'}" to="/completed">Completed</router-link>
-					</li>
-				</ul>
-				<button v-if="showClearCompleted" @click="clearCompleted()" class="clear-completed">Clear completed</button>
-			</footer>
+       <v-footer 
+        :v_allTasks="this.allTasks"
+        :v_tasks="this.tasks"
+        @sendClearCompleted="clearCompleted"
+        @tasksChange="changeTasks"
+        ></v-footer>
       </div>
     </section>
   </div>
 </template>
 
 <script>
+import vFooter from './components/v-footer.vue';
 
   export default {
     name: 'App',
     components: {
-      
+      vFooter
     },
     directives: {
       focus: {
@@ -79,23 +71,8 @@
     },
 
     computed: {
-      countValue() {
-        return this.tasks.length + " items left"
-      },
-      showClearCompleted() {
-        return this.tasks.filter(task => task.completed).length > 0
-      },
       pageURL() {
         return this.$route.path
-      },
-      filteredTasks() {
-        if (this.pageURL == "/active") {
-          return this.showActiveTasks()
-        }
-        if (this.pageURL == "/completed") {
-          return this.showCompletedTasks()
-        }
-        return this.showAllTasks() 
       }
     },
 
@@ -132,17 +109,11 @@
         this.allTasks = this.tasks
       },
       clearCompleted() {
-        this.tasks = this.tasks.filter((task) => task.completed == false),
-        this.allTasks = this.allTasks.filter((task) => task.completed == false)
+        this.tasks = this.tasks.filter((task) => !task.completed),
+        this.allTasks = this.allTasks.filter((task) => !task.completed)
       },
-      showActiveTasks() {
-        this.tasks = this.allTasks.filter((task) => task.completed == false)
-      },
-      showCompletedTasks() {
-        this.tasks = this.allTasks.filter((task) => task.completed == true)
-      },
-      showAllTasks() {
-        this.tasks = this.allTasks
+      changeTasks(tas) {
+        this.tasks = tas
       }
     }
   }
@@ -328,13 +299,12 @@ body {
 .todo-list li .toggle {
   text-align: center;
   width: 40px;
-  /* auto, since non-WebKit browsers doesn't support input styling */
   height: auto;
   position: absolute;
   top: 0;
   bottom: 0;
   margin: auto 0;
-  border: none; /* Mobile Safari */
+  border: none;
   -webkit-appearance: none;
   appearance: none;
 }
@@ -344,10 +314,6 @@ body {
 }
 
 .todo-list li .toggle + label {
-  /*
-        Firefox requires `#` to be escaped - https://bugzilla.mozilla.org/show_bug.cgi?id=922433
-        IE and Edge requires *everything* to be escaped to render, so we do that instead of just the `#` - https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7157459/
-    */
   background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%22-10%20-18%20100%20135%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22none%22%20stroke%3D%22%23ededed%22%20stroke-width%3D%223%22/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: center left;
@@ -407,105 +373,6 @@ body {
   margin-bottom: -1px;
 }
 
-.footer {
-  color: #777;
-  padding: 10px 15px;
-  height: 20px;
-  text-align: center;
-  border-top: 1px solid #e6e6e6;
-}
-
-.footer:before {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 50px;
-  overflow: hidden;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 8px 0 -3px #f6f6f6,
-    0 9px 1px -3px rgba(0, 0, 0, 0.2), 0 16px 0 -6px #f6f6f6,
-    0 17px 2px -6px rgba(0, 0, 0, 0.2);
-}
-
-.todo-count {
-  float: left;
-  text-align: left;
-}
-
-.todo-count strong {
-  font-weight: 300;
-}
-
-.filters {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  position: absolute;
-  right: 0;
-  left: 0;
-}
-
-.filters li {
-  display: inline;
-}
-
-.filters li a {
-  color: inherit;
-  margin: 3px;
-  padding: 3px 7px;
-  text-decoration: none;
-  border: 1px solid transparent;
-  border-radius: 3px;
-}
-
-.filters li a:hover {
-  border-color: rgba(175, 47, 47, 0.1);
-}
-
-.filters li a.selected {
-  border-color: rgba(175, 47, 47, 0.2);
-}
-
-.clear-completed,
-html .clear-completed:active {
-  float: right;
-  position: relative;
-  line-height: 20px;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.clear-completed:hover {
-  text-decoration: underline;
-}
-
-.info {
-  margin: 65px auto 0;
-  color: #bfbfbf;
-  font-size: 10px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
-  text-align: center;
-}
-
-.info p {
-  line-height: 1;
-}
-
-.info a {
-  color: inherit;
-  text-decoration: none;
-  font-weight: 400;
-}
-
-.info a:hover {
-  text-decoration: underline;
-}
-
-/*
-    Hack to remove background from Mobile Safari.
-    Can't use it globally since it destroys checkboxes in Firefox
-*/
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   .toggle-all,
   .todo-list li .toggle {
